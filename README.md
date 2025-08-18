@@ -26,6 +26,7 @@ GuGoTik 是一个基于微服务架构的迷你抖音后端项目，支持用户
 
 ## 项目结构
 
+```bash
 GuGoTik/
 ├── docker/ # 基础镜像配置
 ├── scripts/ # 构建与部署脚本
@@ -52,21 +53,26 @@ GuGoTik/
    cd GuGoTik
 
 2. 启动服务
+    ```bash
     docker compose up -d
 
 3. 启动服务
+    ```bash
     访问网关：默认地址 http://localhost:8080
 
 ### 手动构建
 
 1. 安装依赖：
+    ```bash
     go mod download
 
 2. 构建服务
+    ```bash
     cd scripts
     ./build-all.sh  # 选择对应平台的脚本
 
 3. 运行服务
+    ```bash
     ./run-all.sh
 
 ## 贡献指南
