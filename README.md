@@ -41,6 +41,7 @@ GuGoTik/
 │ └── web/ # 网关层代码
 ├── test/ # 单元测试与集成测试
 └── docker-compose.yml # 本地部署配置
+```
 
 
 ## 快速开始
@@ -48,32 +49,44 @@ GuGoTik/
 ### 本地部署（Docker Compose）
 
 1. 克隆仓库：
+
    ```bash
    git clone https://github.com/juyu2004/mini-TikTok.git
    cd GuGoTik
+   ```
 
 2. 启动服务
-    ```bash
-    docker compose up -d
+
+   ```bash
+   docker compose up -d
+   ```
 
 3. 启动服务
-    ```bash
-    访问网关：默认地址 http://localhost:8080
+
+   ```bash
+   访问网关：默认地址 http://localhost:8080
+   ```
 
 ### 手动构建
 
 1. 安装依赖：
-    ```bash
-    go mod download
+
+   ```bash
+   go mod download
+   ```
 
 2. 构建服务
-    ```bash
-    cd scripts
-    ./build-all.sh  # 选择对应平台的脚本
+
+   ```bash
+   cd scripts
+   ./build-all.sh  # 选择对应平台的脚本
+   ```
 
 3. 运行服务
-    ```bash
-    ./run-all.sh
+
+   ```bash
+   ./run-all.sh
+   ```
 
 ## 贡献指南
 
