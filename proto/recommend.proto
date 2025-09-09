@@ -1,0 +1,13 @@
+syntax = "proto3";
+package proto;
+option go_package = "github.com/example/mini-tiktok/proto;proto";
+
+service RecommendService {
+  rpc Hot(HotRequest) returns (HotResponse);
+  rpc ForUser(ForUserRequest) returns (ForUserResponse);
+}
+
+message HotRequest { int32 size = 1; }
+message HotResponse { repeated string video_ids = 1; }
+message ForUserRequest { string user_id = 1; int32 size = 2; }
+message ForUserResponse { repeated string video_ids = 1; }

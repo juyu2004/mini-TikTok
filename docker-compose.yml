@@ -1,0 +1,102 @@
+version: "3.9"
+services:
+  consul:
+    image: hashicorp/consul:1.16
+    command: consul agent -dev -client=0.0.0.0
+    ports: ["8500:8500"]
+  mysql:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=mini_tiktok
+    ports: ["3306:3306"]
+    volumes: ["mysql_data:/var/lib/mysql"]
+  redis:
+    image: redis:7
+    ports: ["6379:6379"]
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports: ["5672:5672", "15672:15672"]
+  minio:
+    image: minio/minio:RELEASE.2024-05-10T01-41-38Z
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    ports: ["9000:9000", "9001:9001"]
+    volumes: ["minio_data:/data"]
+  jaeger:
+    image: jaegertracing/all-in-one:1.57
+    ports: ["16686:16686", "4317:4317", "4318:4318"]
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./deploy/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports: ["9090:9090"]
+  grafana:
+    image: grafana/grafana
+    ports: ["3000:3000"]
+    volumes:
+      - grafana_data:/var/lib/grafana
+  pyroscope:
+    image: grafana/pyroscope:1.5.0
+    ports: ["4040:4040"]
+  gateway:
+    build: ./gateway
+    environment:
+      - CONSUL_ADDR=http://consul:8500
+      - JAEGER_ENDPOINT=http://jaeger:4318
+      - JWT_SECRET=change_me_secret
+    depends_on: [consul, user, video, social, recommend]
+    ports: ["8080:8080"]
+  user:
+    build: ./services/user
+    environment:
+      - CONSUL_ADDR=http://consul:8500
+      - MYSQL_DSN=root:root@tcp(mysql:3306)/mini_tiktok?parseTime=true&charset=utf8mb4&loc=Local
+      - REDIS_ADDR=redis:6379
+      - JAEGER_ENDPOINT=http://jaeger:4318
+      - JWT_SECRET=change_me_secret
+    depends_on: [mysql, redis, consul, jaeger]
+    ports: ["50051:50051"]
+  video:
+    build: ./services/video
+    environment:
+      - CONSUL_ADDR=http://consul:8500
+      - MYSQL_DSN=root:root@tcp(mysql:3306)/mini_tiktok?parseTime=true&charset=utf8mb4&loc=Local
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - JAEGER_ENDPOINT=http://jaeger:4318
+    depends_on: [mysql, minio, rabbitmq, consul, jaeger]
+    ports: ["50052:50052"]
+  social:
+    build: ./services/social
+    environment:
+      - CONSUL_ADDR=http://consul:8500
+      - MYSQL_DSN=root:root@tcp(mysql:3306)/mini_tiktok?parseTime=true&charset=utf8mb4&loc=Local
+      - REDIS_ADDR=redis:6379
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - JAEGER_ENDPOINT=http://jaeger:4318
+    depends_on: [mysql, redis, rabbitmq, consul, jaeger]
+    ports: ["50053:50053"]
+  recommend:
+    build: ./services/recommend
+    environment:
+      - CONSUL_ADDR=http://consul:8500
+      - REDIS_ADDR=redis:6379
+      - MYSQL_DSN=root:root@tcp(mysql:3306)/mini_tiktok?parseTime=true&charset=utf8mb4&loc=Local
+      - JAEGER_ENDPOINT=http://jaeger:4318
+    depends_on: [redis, consul, jaeger]
+    ports: ["50054:50054"]
+  webapp:
+    build: ./webapp
+    ports: ["5173:5173"]
+    environment:
+      - VITE_API_BASE=http://localhost:8080
+    depends_on: [gateway]
+volumes:
+  mysql_data: {}
+  minio_data: {}
+  grafana_data: {}

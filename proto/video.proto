@@ -1,0 +1,20 @@
+syntax = "proto3";
+package proto;
+option go_package = "github.com/example/mini-tiktok/proto;proto";
+
+service VideoService {
+  rpc Upload(UploadRequest) returns (UploadResponse);
+  rpc ListByUser(ListByUserRequest) returns (ListByUserResponse);
+  rpc Feed(FeedRequest) returns (FeedResponse);
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
+}
+
+message UploadRequest { string user_id = 1; string title = 2; string description = 3; bytes file = 4; string filename = 5; }
+message UploadResponse { string video_id = 1; string playback_url = 2; }
+message ListByUserRequest { string user_id = 1; int32 page = 2; int32 page_size = 3; }
+message Video { string video_id = 1; string title = 2; string description = 3; string playback_url = 4; int64 likes = 5; int64 comments = 6; }
+message ListByUserResponse { repeated Video items = 1; }
+message FeedRequest { int32 page = 1; int32 page_size = 2; }
+message FeedResponse { repeated Video items = 1; }
+message DeleteRequest { string user_id = 1; string video_id = 2; }
+message DeleteResponse { bool ok = 1; }
